@@ -70,3 +70,7 @@ OF_CLOCK_POS := 1
 
 # Allow missing dependencies
 ALLOW_MISSING_DEPENDENCIES := true
+
+# Display brightness control
+TW_MAX_BRIGHTNESS := 255
+TW_DEFAULT_BRIGHTNESS := 128
