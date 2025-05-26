@@ -74,3 +74,16 @@ ALLOW_MISSING_DEPENDENCIES := true
 # Display brightness control
 TW_MAX_BRIGHTNESS := 255
 TW_DEFAULT_BRIGHTNESS := 128
+
+# AB OTA Partitions (required for AB_OTA_UPDATER)
+AB_OTA_PARTITIONS += \
+    boot \
+    system \
+    vendor \
+    product \
+    system_ext \
+    vbmeta \
+    vbmeta_system
+
+# AB OTA Updater
+AB_OTA_UPDATER := true
