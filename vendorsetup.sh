@@ -4,8 +4,8 @@ export LC_ALL="C.UTF-8"
 export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
 export OF_DISABLE_MIUI_SPECIFIC_FEATURES=1
 
-export OF_MAINTAINER="Dakkshesh07"
-export FOX_VERSION="R12.1"
+export OF_MAINTAINER="Aifinef"
+#export FOX_VERSION="R12.1"
 #export FOX_BUILD_TYPE="Stable-RUI2"
 export FOX_BUILD_TYPE="Stable-Retrofit-F2FS"
 export TARGET_ARCH=arm64
