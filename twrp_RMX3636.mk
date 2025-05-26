@@ -11,3 +11,5 @@ PRODUCT_RELEASE_NAME := RMX3636
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.twrp.maintainer=Aifinef
+# Inherit OrangeFox-specific settings
+$(call inherit-product-if-exists, device/realme/RMX3636/fox_RMX3636.mk)
