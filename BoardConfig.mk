@@ -1,92 +1,193 @@
+#
+# Copyright (C) 2019 The TwrpBuilder Open-Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 DEVICE_PATH := device/realme/RMX3636
 
 # Architecture
 TARGET_ARCH := arm64
 TARGET_ARCH_VARIANT := armv8-a
 TARGET_CPU_ABI := arm64-v8a
+TARGET_CPU_ABI2 :=
 TARGET_CPU_VARIANT := generic
+TARGET_CPU_VARIANT_RUNTIME := kryo385
 
 TARGET_2ND_ARCH := arm
-TARGET_2ND_ARCH_VARIANT := armv7-a-neon
+TARGET_2ND_ARCH_VARIANT := armv8-a
 TARGET_2ND_CPU_ABI := armeabi-v7a
+TARGET_2ND_CPU_ABI2 := armeabi
 TARGET_2ND_CPU_VARIANT := generic
+TARGET_2ND_CPU_VARIANT_RUNTIME := kryo385
 
-# Bootloader
-TARGET_BOOTLOADER_BOARD_NAME := RMX3636
-TARGET_NO_BOOTLOADER := true
+ENABLE_CPUSETS := true
+ENABLE_SCHEDBOOST := true
 
 # Platform
-TARGET_BOARD_PLATFORM := mt6833
+TARGET_BOARD_PLATFORM := sdm710
+TARGET_BOOTLOADER_BOARD_NAME := sdm710
+TARGET_NO_BOOTLOADER := true
+TARGET_USES_UEFI := true
+
+# fstab
+TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)//recovery/root/system/etc/recovery.fstab
 
 # Kernel
-KERNEL_SOURCE := kernel/realme/RMX3636
-TARGET_KERNEL_CONFIG := RMX3636_defconfig
+BOARD_KERNEL_CMDLINE := \
+    console=ttyMSM0,115200n8 \
+    earlycon=msm_geni_serial,0xA90000 \
+    androidboot.hardware=qcom \
+    androidboot.console=ttyMSM0 \
+    video=vfb:640x400,bpp=32,memsize=3072000 \
+    msm_rtb.filter=0x237 \
+    ehci-hcd.park=3 \
+    lpm_levels.sleep_disabled=1 \
+    service_locator.enable=1 \
+    androidboot.configfs=true \
+    androidboot.usbcontroller=a600000.dwc3 \
+    swiotlb=1 \
+    loop.max_part=7 \
+    printk.devkmsg=on \
+    kpti=off androidboot.android_dt_dir=/non-existent androidboot.boot_devices=soc/1d84000.ufshc
+
+BOARD_KERNEL_BASE := 0x00000000
+BOARD_KERNEL_PAGESIZE := 4096
+BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
 TARGET_KERNEL_ARCH := arm64
-BOARD_KERNEL_CMDLINE := bootopt=64S3,32N2,64N2
-BOARD_KERNEL_BASE := 0x40078000
-BOARD_KERNEL_PAGESIZE := 2048
-BOARD_RAMDISK_OFFSET := 0x11088000
-BOARD_KERNEL_TAGS_OFFSET := 0x07c08000
-BOARD_KERNEL_IMAGE_NAME := Image
+TARGET_KERNEL_HEADER_ARCH := arm64
+TARGET_NO_KERNEL := false
+BOARD_KERNEL_SEPARATED_DTBO := true
+BOARD_INCLUDE_RECOVERY_DTBO := true
+BOARD_MKBOOTIMG_ARGS += --ramdisk_offset 0x01000000 --tags_offset 0x00000100 --header_version 1
+TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image.gz-dtb
+BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
 
-# Recovery-as-boot
-BOARD_USES_RECOVERY_AS_BOOT := true
-TARGET_NO_RECOVERY := false
-
-# Partitions
-BOARD_FLASH_BLOCK_SIZE := 131072
-BOARD_BOOTIMAGE_PARTITION_SIZE := 67108864
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 3221225472
-
-# Dynamic Partitions
-BOARD_SUPER_PARTITION_SIZE := 9126805504
-BOARD_SUPER_PARTITION_GROUPS := realme_dynamic_partitions
-BOARD_REALME_DYNAMIC_PARTITIONS_PARTITION_LIST := system vendor product system_ext
-BOARD_REALME_DYNAMIC_PARTITIONS_SIZE := 9122611200
-
-# File systems
-TARGET_USERIMAGES_USE_EXT4 := true
-TARGET_USERIMAGES_USE_F2FS := true
-
-# Crypto support
-TW_INCLUDE_CRYPTO := true
-TW_INCLUDE_CRYPTO_FBE := true
-TW_INCLUDE_FBE_METADATA_DECRYPT := true
+# Partitions (static)
 BOARD_USES_METADATA_PARTITION := true
 
-# TWRP specific build flags
-TW_THEME := portrait_hdpi
-TW_EXTRA_LANGUAGES := true
-TW_SCREEN_BLANK_ON_BOOT := true
-TW_INPUT_BLACKLIST := "hbtp_vm"
-TW_USE_TOOLBOX := true
+BOARD_FLASH_BLOCK_SIZE := 262144
+BOARD_EROFS_PCLUSTER_SIZE := 262144
+BOARD_EROFS_COMPRESSOR := lz4
+BOARD_BOOTIMAGE_PARTITION_SIZE := 67108864
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 67108864
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 55141412864
+BOARD_CACHEIMAGE_PARTITION_SIZE := 268435456
+
+BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
+BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := f2fs
+
+# Uncomment if not using dynamic paritions
+#BOARD_SYSTEMIMAGE_PARTITION_SIZE := 5435817984
+#BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4
+#BOARD_VENDORIMAGE_PARTITION_SIZE := 1660944384
+#BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
+#BOARD_ODMIMAGE_PARTITION_SIZE := 268435456
+
+# Partitions (dynamic)
+BOARD_SUPER_PARTITION_BLOCK_DEVICES := system vendor odm
+BOARD_SUPER_PARTITION_SYSTEM_DEVICE_SIZE := 5435817984
+BOARD_SUPER_PARTITION_VENDOR_DEVICE_SIZE := 1660944384
+BOARD_SUPER_PARTITION_ODM_DEVICE_SIZE := 268435456
+
+BOARD_SUPER_PARTITION_METADATA_DEVICE := system
+BOARD_SUPER_PARTITION_SIZE := $(shell expr $(BOARD_SUPER_PARTITION_ODM_DEVICE_SIZE) + $(BOARD_SUPER_PARTITION_SYSTEM_DEVICE_SIZE) + $(BOARD_SUPER_PARTITION_VENDOR_DEVICE_SIZE) )
+
+BOARD_SUPER_PARTITION_GROUPS := main_dynapart
+BOARD_MAIN_DYNAPART_SIZE := $(shell expr $(BOARD_SUPER_PARTITION_SIZE) - 4194304 )
+BOARD_MAIN_DYNAPART_PARTITION_LIST := odm product system system_ext vendor
+
+SSI_PARTITIONS := product system system_ext
+TREBLE_PARTITIONS := odm vendor
+ALL_PARTITIONS := $(SSI_PARTITIONS) $(TREBLE_PARTITIONS)
+
+$(foreach p, $(call to-upper, $(ALL_PARTITIONS)), \
+    $(eval BOARD_$(p)IMAGE_FILE_SYSTEM_TYPE := erofs) \
+    $(eval TARGET_COPY_OUT_$(p) := $(call to-lower, $(p))))
+
+$(foreach p, $(call to-upper, $(SSI_PARTITIONS)), \
+    $(eval BOARD_$(p)IMAGE_EXTFS_INODE_COUNT := -1))
+$(foreach p, $(call to-upper, $(TREBLE_PARTITIONS)), \
+    $(eval BOARD_$(p)IMAGE_EXTFS_INODE_COUNT := 4096))
+
+$(foreach p, $(call to-upper, $(SSI_PARTITIONS)), \
+    $(eval BOARD_$(p)IMAGE_PARTITION_RESERVED_SIZE := 83886080)) # 80 MB
+$(foreach p, $(call to-upper, $(TREBLE_PARTITIONS)), \
+    $(eval BOARD_$(p)IMAGE_PARTITION_RESERVED_SIZE := 41943040)) # 40 MB
+
+TARGET_USERIMAGES_USE_F2FS := true
+TARGET_USERIMAGES_USE_EXT4 := true
+
+# Recovery
+BOARD_HAS_LARGE_FILESYSTEM := true
+BOARD_HAS_NO_SELECT_BUTTON := true
+BOARD_SUPPRESS_SECURE_ERASE := true
+TARGET_NO_RECOVERY := false
+
+# Use mke2fs to create ext4 images
+TARGET_USES_MKE2FS := true
+
+# Encryption
+BOARD_USES_QCOM_FBE_DECRYPTION := true
+PLATFORM_VERSION := 16.1.0
+PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
+PLATFORM_SECURITY_PATCH := 2127-12-31
+VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
+TW_INCLUDE_CRYPTO := true
+TW_USE_FSCRYPT_POLICY := 1
+
+# Extras
 TW_INCLUDE_RESETPROP := true
+TW_INCLUDE_REPACKTOOLS := true
 
-# Orange Fox specific
-OF_MAINTAINER := Aifinef
-OF_SCREEN_H := 2400
-OF_STATUS_H := 100
-OF_STATUS_INDENT_LEFT := 48
-OF_STATUS_INDENT_RIGHT := 48
-OF_HIDE_NOTCH := true
-OF_CLOCK_POS := 1
+# TWRP specific build flags
+TARGET_RECOVERY_QCOM_RTC_FIX := true
+TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+TARGET_USE_CUSTOM_LUN_FILE_PATH := /config/usb_gadget/g1/functions/mass_storage.0/lun.%d/file
+TW_THEME := portrait_hdpi
+TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
+TW_DEFAULT_BRIGHTNESS := 230
+TW_MAX_BRIGHTNESS := 1023
+#TW_NO_SCREEN_TIMEOUT := true
+TW_NO_SCREEN_BLANK := true
+TW_EXCLUDE_DEFAULT_USB_INIT := true
+TW_EXTRA_LANGUAGES := true
+TW_HAS_EDL_MODE := true
+TW_INCLUDE_NTFS_3G := true
+TW_INPUT_BLACKLIST := "hbtp_vm"
+TW_NO_EXFAT_FUSE := true
+TW_SKIP_COMPATIBILITY_CHECK := true
+TW_OZIP_DECRYPT_KEY :=  1c4c1ea3a12531ae491b21bb31613c11
+TW_QCOM_ATS_OFFSET := 1621580431500
 
-# Allow missing dependencies
-ALLOW_MISSING_DEPENDENCIES := true
+# TWRP Debug Flags
+TARGET_USES_LOGD := true
+#TWRP_EVENT_LOGGING := true
+TWRP_INCLUDE_LOGCAT := true
+TARGET_RECOVERY_DEVICE_MODULES += debuggerd
+TW_RECOVERY_ADDITIONAL_RELINK_FILES += $(TARGET_OUT_EXECUTABLES)/debuggerd
 
-# Display brightness control
-TW_MAX_BRIGHTNESS := 255
-TW_DEFAULT_BRIGHTNESS := 128
+# Verified Boot
+BOARD_AVB_ENABLE := true
+BOARD_AVB_RECOVERY_ADD_HASH_FOOTER_ARGS += \
+    --prop com.android.build.recovery.fingerprint:$(BUILD_FINGERPRINT_FROM_FILE) \
+    --prop com.android.build.boot.os_version:$(PLATFORM_VERSION) \
+    --prop com.android.build.boot.security_patch:$(PLATFORM_SECURITY_PATCH)
+BOARD_AVB_RECOVERY_ALGORITHM := SHA256_RSA4096
+BOARD_AVB_RECOVERY_KEY_PATH := external/avb/test/data/testkey_rsa4096.pem
+BOARD_AVB_RECOVERY_ROLLBACK_INDEX := 1
+BOARD_AVB_RECOVERY_ROLLBACK_INDEX_LOCATION := 1
 
-# AB OTA Partitions (required for AB_OTA_UPDATER)
-AB_OTA_PARTITIONS += \
-    boot \
-    system \
-    vendor \
-    product \
-    system_ext \
-    vbmeta \
-    vbmeta_system
-
-# AB OTA Updater
-AB_OTA_UPDATER := true
+# include python, for ABX conversion
+TW_INCLUDE_PYTHON := true
+#
